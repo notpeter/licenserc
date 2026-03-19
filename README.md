@@ -1,4 +1,4 @@
-# licenserc
+# licenserc: License Rules Checker
 
-A tool written in rust for handling .licenserc.yaml files.
-
+Tool for enforcing license rules for a given repo.
+Configrued via `.licenserc.yaml` files.
