@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/notpeter/licenserc/main/licenserc.schema.json
+
+header:
+  license:
+    spdx-id: Apache-2.0
+    # copyright-owner: Your Name or Organization
+
+  paths:
+    - "src/*.rs"
+
+  # paths-ignore:
+  # - "dist"
+  # - "**/*.md"
+
+# dependency:
+#   files:
+#     - go.mod
+#     - Cargo.toml
+#     - package.json

@@ -327,7 +327,6 @@ fn strip_nulls_from_schema(schema: &mut SchemaObject) {
 
 /// Add default values and numeric constraints that schemars doesn't infer.
 fn add_defaults_and_constraints(root: &mut RootSchema) {
-    // Helper to get a mutable definition by name.
     fn get_def<'a>(root: &'a mut RootSchema, name: &str) -> Option<&'a mut SchemaObject> {
         root.definitions.get_mut(name).and_then(|s| match s {
             Schema::Object(o) => Some(o),
@@ -458,7 +457,7 @@ fn lowercase_definition_keys(root: &mut RootSchema) {
             }
         }
         if let Some(o) = &mut obj.object {
-            for prop in o.properties.values_mut() {
+            for (_key, prop) in &mut o.properties {
                 update_refs(prop, renames);
             }
             if let Some(additional) = &mut o.additional_properties {
@@ -480,7 +479,6 @@ fn lowercase_definition_keys(root: &mut RootSchema) {
     }
 
     update_refs_obj(&mut root.schema, &renames);
-    // We need to iterate over definitions values. Collect keys first.
     let keys: Vec<String> = root.definitions.keys().cloned().collect();
     for key in keys {
         if let Some(schema) = root.definitions.get_mut(&key) {

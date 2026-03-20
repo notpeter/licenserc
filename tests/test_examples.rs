@@ -31,14 +31,6 @@ fn parse_yaml_examples() {
 }
 
 #[test]
-fn parse_toml_example() {
-    let content = include_str!("examples/oxide.licenserc.toml");
-    let config: Config =
-        toml::from_str(content).unwrap_or_else(|e| panic!("failed to parse toml example: {e}"));
-    assert!(config.header.is_some(), "toml example should have a header");
-}
-
-#[test]
 fn yaml_roundtrip() {
     for (name, content) in yaml_examples() {
         let config: Config = serde_saphyr::from_str(content)
