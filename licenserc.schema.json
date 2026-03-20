@@ -1,0 +1,249 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/notpeter/licenserc/main/licenserc.schema.json",
+  "title": "licenserc configuration",
+  "description": "Configuration for licenserc license header and dependency checking tool.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "header": {
+      "$ref": "#/definitions/headerField"
+    },
+    "dependency": {
+      "$ref": "#/definitions/dependency"
+    }
+  },
+  "definitions": {
+    "headerField": {
+      "description": "License header checking/fixing configuration. Accepts a single header config (V1) or an array of header configs (V2) for multi-module projects.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/headerConfig"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/headerConfig"
+          },
+          "minItems": 1
+        }
+      ]
+    },
+    "headerConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "license": {
+          "$ref": "#/definitions/license"
+        },
+        "paths": {
+          "description": "Glob patterns specifying which files to check. Supports doublestar (**) syntax.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["**"]
+        },
+        "paths-ignore": {
+          "description": "Glob patterns specifying which files to exclude. .git and .gitignore entries are automatically ignored.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "comment": {
+          "description": "Controls PR commenting behavior for CI/GitHub Actions integration.",
+          "type": "string",
+          "enum": ["on-failure", "always", "never"],
+          "default": "on-failure"
+        },
+        "license-location-threshold": {
+          "description": "Maximum number of characters from the start of a file where the license header can be located. A header beyond this threshold is treated as missing.",
+          "type": "integer",
+          "minimum": 0,
+          "default": 80
+        },
+        "language": {
+          "description": "Override or customize comment styles for specific languages.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/language"
+          }
+        }
+      }
+    },
+    "license": {
+      "description": "License header definition.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "spdx-id": {
+          "description": "SPDX license identifier. Used to select a built-in header template.",
+          "type": "string",
+          "enum": [
+            "Apache-2.0",
+            "Apache-2.0-EF",
+            "MIT",
+            "GPL-3.0-or-later",
+            "AGPL-3.0-only",
+            "AGPL-3.0-or-later",
+            "EPL-2.0",
+            "MPL-2.0",
+            "MulanPSL-2.0"
+          ]
+        },
+        "copyright-owner": {
+          "description": "Copyright holder name. Replaces [owner] in SPDX templates.",
+          "type": "string"
+        },
+        "copyright-year": {
+          "description": "Copyright year or range (e.g. \"2024\", \"2020-2024\"). Replaces [year] in templates. Defaults to current year.",
+          "type": "string"
+        },
+        "software-name": {
+          "description": "Project name. Replaces [software-name] in templates.",
+          "type": "string"
+        },
+        "content": {
+          "description": "Full license header text. Takes precedence over spdx-id when both are specified. Supports [year], [owner], and [software-name] placeholders.",
+          "type": "string"
+        },
+        "pattern": {
+          "description": "Regex pattern to match existing license headers. Enables flexible validation of varying header formats.",
+          "type": "string"
+        }
+      }
+    },
+    "language": {
+      "description": "Language-specific comment style configuration.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "extensions": {
+          "description": "File extensions that trigger this language config (e.g. [\".go\"]).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filenames": {
+          "description": "Specific filenames to match (e.g. [\"Makefile\"]).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "comment_style_id": {
+          "description": "Reference to a built-in comment style.",
+          "type": "string",
+          "enum": [
+            "DoubleSlash",
+            "SlashAsterisk",
+            "Hashtag",
+            "AngleBracket",
+            "PhpTag",
+            "Remark",
+            "CurlyBracketDash",
+            "CurlyBracketHashtag",
+            "CurlyBracketAsterisk",
+            "DoubleDash",
+            "RoundBracketAsterisk",
+            "Semicolon",
+            "Percent",
+            "Apostrophe",
+            "DoubleDot",
+            "Quotes",
+            "PythonStyle",
+            "PythonDocStringStyle"
+          ]
+        }
+      }
+    },
+    "dependency": {
+      "description": "Dependency license compatibility checking configuration.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "description": "Dependency manifest files to scan (e.g. go.mod, Cargo.toml, package.json). Paths are relative to the config file location.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "licenses": {
+          "description": "Manually declare licenses for dependencies that cannot be automatically identified.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/dependencyLicense"
+          }
+        },
+        "excludes": {
+          "description": "Dependencies to exclude from license analysis.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/dependencyExclude"
+          }
+        },
+        "threshold": {
+          "description": "Minimum percentage of a file's content that must contain license text for the license to be identified.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 75
+        },
+        "require_fsf_free": {
+          "description": "When true, only FSF Free/Libre-marked licenses are considered compatible.",
+          "type": "boolean",
+          "default": false
+        },
+        "require_osi_approved": {
+          "description": "When true, only OSI-approved licenses are considered compatible.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "dependencyLicense": {
+      "description": "Manual license declaration for a dependency.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "description": "Dependency identifier. Format varies by ecosystem: package path (Go), GroupID:ArtifactID (Maven), package name (NPM).",
+          "type": "string"
+        },
+        "version": {
+          "description": "Comma-separated versions (e.g. \"1.0,2.0,3.0\"). Empty matches all versions.",
+          "type": "string"
+        },
+        "license": {
+          "description": "SPDX license identifier.",
+          "type": "string"
+        }
+      }
+    },
+    "dependencyExclude": {
+      "description": "Dependency exclusion rule.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "description": "Dependency identifier.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Specific version(s) to exclude. Empty excludes all versions.",
+          "type": "string"
+        },
+        "recursive": {
+          "description": "Exclude transitive dependencies too (Maven only).",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  }
+}
